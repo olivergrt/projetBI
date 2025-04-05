@@ -4,122 +4,31 @@ BEGIN;
 
 
 ALTER TABLE IF EXISTS dsid_dwh.fact_devis DROP CONSTRAINT IF EXISTS fk_client_d;
-
 ALTER TABLE IF EXISTS dsid_dwh.fact_devis DROP CONSTRAINT IF EXISTS fk_commercial;
-
 ALTER TABLE IF EXISTS dsid_dwh.fact_devis DROP CONSTRAINT IF EXISTS fk_produit;
-
 ALTER TABLE IF EXISTS dsid_dwh.fact_devis DROP CONSTRAINT IF EXISTS fk_statut_devis;
-
 ALTER TABLE IF EXISTS dsid_dwh.fact_devis DROP CONSTRAINT IF EXISTS fk_date;
 
 
+DROP SEQUENCE IF EXISTS dsid_wrk.seq_staging_vente;
+DROP SEQUENCE IF EXISTS dsid_wrk.seq_ods_vente;
+DROP SEQUENCE IF EXISTS dsid_dwh.seq_client;
+DROP SEQUENCE IF EXISTS dsid_dwh.seq_date;
+DROP SEQUENCE IF EXISTS dsid_dwh.seq_commercial;
+DROP SEQUENCE IF EXISTS dsid_dwh.seq_produit;
+DROP SEQUENCE IF EXISTS dsid_dwh.seq_status_devis;
+DROP SEQUENCE IF EXISTS dsid_dwh.seq_fact_devis;
 
-DROP TABLE IF EXISTS dsid_dwh.dim_client;
-
-CREATE TABLE IF NOT EXISTS dsid_dwh.dim_client
-(
-    id_client integer NOT NULL,
-    id_client_src integer NOT NULL,
-    nom_client character varying(100),
-    nom_client_precedent character varying(100),
-    ville_client character varying(100),
-    ville_client_precedent character varying(100),
-    etat_client character varying(100),
-    etat_client_precedent character varying(100),
-    PRIMARY KEY (id_client)
-);
-
-DROP TABLE IF EXISTS dsid_dwh.dim_produit;
-
-CREATE TABLE IF NOT EXISTS dsid_dwh.dim_produit
-(
-    id_produit integer NOT NULL,
-    id_produit_src integer NOT NULL,
-    nom_produit text,
-    nom_type_prestation text,
-    nom_categorie_produit character varying(100),
-    PRIMARY KEY (id_produit)
-);
-
-DROP TABLE IF EXISTS dsid_dwh.dim_statut_devis;
-
-CREATE TABLE IF NOT EXISTS dsid_dwh.dim_status_devis
-(
-    id_status integer NOT NULL,
-    id_status_src integer NOT NULL,
-    code_status_devis text NOT NULL,
-    libelle_status_devis text NOT NULL,
-    PRIMARY KEY (id_status)
-);
-
-DROP TABLE IF EXISTS dsid_dwh.dim_date;
-
-CREATE TABLE IF NOT EXISTS dsid_dwh.dim_date
-(
-    id_date integer NOT NULL,
-    id_devis integer,
-    date_creation_devis date,
-    date_validation_devis date,
-    PRIMARY KEY (id_date)
-);
-
-DROP TABLE IF EXISTS dsid_dwh.fact_devis;
-
-CREATE TABLE IF NOT EXISTS dsid_dwh.fact_devis
-(
-    id_fact_devis integer NOT NULL,
-    id_client integer NOT NULL,
-    id_commercial integer NOT NULL,
-    id_produit integer NOT NULL,
-    id_status integer NOT NULL,
-    id_date integer NOT NULL,
-    montant_ht numeric,
-    montant_ttc numeric,
-    PRIMARY KEY (id_fact_devis)
-);
-
-DROP TABLE IF EXISTS dsid_dwh.dim_commercial;
-
-CREATE TABLE IF NOT EXISTS dsid_dwh.dim_commercial
-(
-    id_commercial integer NOT NULL,
-    id_commercial_src integer NOT NULL,
-    nom_commercial character varying(100),
-    profil_commercial character varying(100),
-    objectifs_pourcentage_atteint double precision,
-    PRIMARY KEY (id_commercial)
-);
-
-DROP TABLE IF EXISTS dsid_wrk.ods_vente_devis;
-
-CREATE TABLE IF NOT EXISTS dsid_wrk.ods_vente_devis
-(
-    id_ods_vente_devis integer NOT NULL,
-    id_devis integer NOT NULL,
-    id_client integer NOT NULL,
-    nom_client character varying(100),
-    ville_client character varying(100),
-    etat_client character varying(100),
-    id_commercial integer NOT NULL,
-    nom_commercial character varying(100),
-    profil_commercial character varying(100),
-    objectifs_pourcentage_atteint double precision,
-    id_produit integer NOT NULL,
-    nom_produit character varying(100),
-    nom_categorie_produit character varying(100),
-    nom_type_prestation character varying(100),
-    code_status_devis text,
-    libelle_status_devis text,
-    date_creation_devis timestamp without time zone,
-    date_validation_devis timestamp without time zone,
-    montant_ht numeric,
-    montant_ttc numeric,
-    _date_traitement timestamp without time zone,
-    CONSTRAINT ods_vente_primary_key PRIMARY KEY (id_ods_vente_devis)
-);
 
 DROP TABLE IF EXISTS dsid_wrk.staging_vente_devis;
+DROP TABLE IF EXISTS dsid_wrk.ods_vente_devis;
+DROP TABLE IF EXISTS dsid_dwh.dim_client;
+DROP TABLE IF EXISTS dsid_dwh.dim_produit;
+DROP TABLE IF EXISTS dsid_dwh.dim_statut_devis;
+DROP TABLE IF EXISTS dsid_dwh.dim_commercial;
+DROP TABLE IF EXISTS dsid_dwh.dim_date;
+DROP TABLE IF EXISTS dsid_dwh.fact_devis;
+
 
 CREATE TABLE IF NOT EXISTS dsid_wrk.staging_vente_devis
 (
@@ -162,6 +71,107 @@ CREATE TABLE IF NOT EXISTS dsid_wrk.staging_vente_devis
     CONSTRAINT staging_vente_devis_pkey PRIMARY KEY (id_staging_vente_devis)
 );
 
+
+CREATE TABLE IF NOT EXISTS dsid_wrk.ods_vente_devis
+(
+    id_ods_vente_devis integer NOT NULL,
+    id_devis integer NOT NULL,
+    id_client integer NOT NULL,
+    nom_client character varying(100),
+    ville_client character varying(100),
+    etat_client character varying(100),
+    id_commercial integer NOT NULL,
+    nom_commercial character varying(100),
+    profil_commercial character varying(100),
+    objectifs_pourcentage_atteint double precision,
+    id_produit integer NOT NULL,
+    nom_produit character varying(100),
+    nom_categorie_produit character varying(100),
+    nom_type_prestation character varying(100),
+    code_status_devis text,
+    libelle_status_devis text,
+    date_creation_devis timestamp without time zone,
+    date_validation_devis timestamp without time zone,
+    montant_ht numeric,
+    montant_ttc numeric,
+    _date_traitement timestamp without time zone,
+    CONSTRAINT ods_vente_primary_key PRIMARY KEY (id_ods_vente_devis)
+);
+
+
+CREATE TABLE IF NOT EXISTS dsid_dwh.fact_devis
+(
+    id_fact_devis integer NOT NULL,
+    id_client integer NOT NULL,
+    id_commercial integer NOT NULL,
+    id_produit integer NOT NULL,
+    id_status integer NOT NULL,
+    id_date integer NOT NULL,
+    montant_ht numeric,
+    montant_ttc numeric,
+    PRIMARY KEY (id_fact_devis)
+);
+
+
+
+CREATE TABLE IF NOT EXISTS dsid_dwh.dim_client
+(
+    id_client integer NOT NULL,
+    id_client_src integer NOT NULL,
+    nom_client character varying(100),
+    nom_client_precedent character varying(100),
+    ville_client character varying(100),
+    ville_client_precedent character varying(100),
+    etat_client character varying(100),
+    etat_client_precedent character varying(100),
+    PRIMARY KEY (id_client)
+);
+
+
+CREATE TABLE IF NOT EXISTS dsid_dwh.dim_produit
+(
+    id_produit integer NOT NULL,
+    id_produit_src integer NOT NULL,
+    nom_produit text,
+    nom_type_prestation text,
+    nom_categorie_produit character varying(100),
+    PRIMARY KEY (id_produit)
+);
+
+
+CREATE TABLE IF NOT EXISTS dsid_dwh.dim_status_devis
+(
+    id_status integer NOT NULL,
+    code_status_devis text NOT NULL,
+    libelle_status_devis text NOT NULL,
+    PRIMARY KEY (id_status)
+);
+
+
+CREATE TABLE IF NOT EXISTS dsid_dwh.dim_date
+(
+    id_date integer NOT NULL,
+    id_devis integer,
+    date_creation_devis date,
+    date_validation_devis date,
+    PRIMARY KEY (id_date)
+);
+
+
+
+CREATE TABLE IF NOT EXISTS dsid_dwh.dim_commercial
+(
+    id_commercial integer NOT NULL,
+    id_commercial_src integer NOT NULL,
+    nom_commercial character varying(100),
+    profil_commercial character varying(100),
+    objectifs_pourcentage_atteint double precision,
+    PRIMARY KEY (id_commercial)
+);
+
+
+
+
 ALTER TABLE IF EXISTS dsid_dwh.fact_devis
     ADD CONSTRAINT fk_client_d FOREIGN KEY (id_client)
     REFERENCES dsid_dwh.dim_client (id_client) MATCH SIMPLE
@@ -200,18 +210,10 @@ ALTER TABLE IF EXISTS dsid_dwh.fact_devis
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
-	
-DROP SEQUENCE IF EXISTS dsid_wrk.seq_staging_vente;
-DROP SEQUENCE IF EXISTS dsid_wrk.seq_ods_vente;
-DROP SEQUENCE IF EXISTS dsid_dwh.seq_client;
-DROP SEQUENCE IF EXISTS dsid_dwh.seq_date;
-DROP SEQUENCE IF EXISTS dsid_dwh.seq_commercial;
-DROP SEQUENCE IF EXISTS dsid_dwh.seq_produit;
-DROP SEQUENCE IF EXISTS dsid_dwh.seq_status_devis;
-DROP SEQUENCE IF EXISTS dsid_dwh.seq_fact_devis;
 
 CREATE SEQUENCE dsid_wrk.seq_staging_vente START WITH 1 INCREMENT BY 1;
 CREATE SEQUENCE dsid_wrk.seq_ods_vente START WITH 1 INCREMENT BY 1;	
+
 CREATE SEQUENCE dsid_dwh.seq_client START WITH 1 INCREMENT BY 1;
 CREATE SEQUENCE dsid_dwh.seq_date START WITH 1 INCREMENT BY 1;
 CREATE SEQUENCE dsid_dwh.seq_commercial START WITH 1 INCREMENT BY 1;
