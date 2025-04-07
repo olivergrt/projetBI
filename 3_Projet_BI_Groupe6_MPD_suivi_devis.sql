@@ -7,7 +7,9 @@ ALTER TABLE IF EXISTS dsid_dwh.fact_devis DROP CONSTRAINT IF EXISTS fk_client_d;
 ALTER TABLE IF EXISTS dsid_dwh.fact_devis DROP CONSTRAINT IF EXISTS fk_commercial;
 ALTER TABLE IF EXISTS dsid_dwh.fact_devis DROP CONSTRAINT IF EXISTS fk_produit;
 ALTER TABLE IF EXISTS dsid_dwh.fact_devis DROP CONSTRAINT IF EXISTS fk_statut_devis;
-ALTER TABLE IF EXISTS dsid_dwh.fact_devis DROP CONSTRAINT IF EXISTS fk_date;
+ALTER TABLE IF EXISTS dsid_dwh.fact_devis DROP CONSTRAINT IF EXISTS fk_date_creation;
+ALTER TABLE IF EXISTS dsid_dwh.fact_devis DROP CONSTRAINT IF EXISTS fk_date_validation;
+
 
 
 DROP SEQUENCE IF EXISTS dsid_wrk.seq_staging_vente;
@@ -106,7 +108,8 @@ CREATE TABLE IF NOT EXISTS dsid_dwh.fact_devis
     id_commercial integer NOT NULL,
     id_produit integer NOT NULL,
     id_status integer NOT NULL,
-    id_date integer NOT NULL,
+    id_date_creation integer NOT NULL,
+    id_date_validation integer NOT NULL,
     montant_ht numeric,
     montant_ttc numeric,
     PRIMARY KEY (id_fact_devis)
@@ -151,10 +154,13 @@ CREATE TABLE IF NOT EXISTS dsid_dwh.dim_status_devis
 CREATE TABLE IF NOT EXISTS dsid_dwh.dim_date
 (
     id_date integer NOT NULL,
-    id_devis integer,
-    date_creation_devis date,
-    date_validation_devis date,
-    PRIMARY KEY (id_date)
+    date date,
+    jour integer,
+    semaine integer,
+    mois integer,
+    annee integer,
+    PRIMARY KEY (id_date),
+    CONSTRAINT unique_date UNIQUE (date)
 );
 
 
@@ -205,7 +211,15 @@ ALTER TABLE IF EXISTS dsid_dwh.fact_devis
 
 
 ALTER TABLE IF EXISTS dsid_dwh.fact_devis
-    ADD CONSTRAINT fk_date FOREIGN KEY (id_date)
+    ADD CONSTRAINT fk_date_creation FOREIGN KEY (id_date_creation)
+    REFERENCES dsid_dwh.dim_date (id_date) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS dsid_dwh.fact_devis
+    ADD CONSTRAINT fk_date_validation FOREIGN KEY (id_date_validation)
     REFERENCES dsid_dwh.dim_date (id_date) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
